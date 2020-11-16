@@ -40,29 +40,43 @@ public class FlammiaM_Project7_Java{
 			int cost = scan.nextInt();
 			edgeNode node  = new edgeNode(Ni,Nj,cost);
 			mst.insert(node, mst.listHeadEdge);
+			System.out.println("Printing list after first insert...");
 			mst.printList(debug,mst.listHeadEdge);
 		}
 		//step 10 loop
-		while(mst.numSets > 1){
+		while(mst.numSets > 0){
 			//step 5
 			edgeNode nextEdge = mst.removeEdge(mst.listHeadEdge);
-			while(mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[nextEdge.Nj]){
+			//step 6 loop, will loop to check parent of Ni and Nj as well
+			while(mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[nextEdge.Nj] || 
+			      mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[mst.inWhichSet[nextEdge.Nj]] ||
+				  mst.inWhichSet[mst.inWhichSet[nextEdge.Ni]] == mst.inWhichSet[nextEdge.Nj]){
+				mst.numSets--;
+				System.out.println("Ignoring node");
+				nextEdge.printNode();
+				//step 5 repeat
 				nextEdge = mst.removeEdge(mst.listHeadEdge);
 			}
-			
+			//debug
+			System.out.println("Next Edge Node");
+			nextEdge.printNode();
+			//step 7
 			mst.insert(nextEdge, mst.listHeadMST);
 			mst.totalMSTCost += nextEdge.cost;
 			mst.merge2Sets(nextEdge.Ni, nextEdge.Nj);
 			mst.numSets--;
-			
+			//step 8 -> 9
 			mst.printAry(debug);
 			System.out.println("Printing Edge List");
 			mst.printList(debug,mst.listHeadEdge);
 			System.out.println("Printing MST List");
 			mst.printList(debug,mst.listHeadMST);
 		}
+		//step 11 -> 12
 		mst.printList(output,mst.listHeadMST);
 		System.out.println("Total MST Cost is:"+mst.totalMSTCost);
+		output.close();
+		debug.close();
 	}
 }
 
@@ -127,6 +141,10 @@ class kruskalMST{
 		}
 	}
 	edgeNode removeEdge(edgeNode head){
+		if(head.next == null){
+			System.out.println("Error! Trying to remove from empty list. Closing program");
+			System.exit(0);
+		}
 		edgeNode temp = head.next;
 		head.next = head.next.next;
 		temp.next = null;
@@ -151,6 +169,7 @@ class kruskalMST{
 	void printList(PrintStream fileOut, edgeNode head){
 		System.setOut(fileOut);
 		edgeNode temp = head;
+		System.out.println("ListHead");
 		while(temp.next != null){
 			temp.printNode();
 			temp = temp.next;
