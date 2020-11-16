@@ -4,7 +4,7 @@ import java.io.*;
 import java.io.PrintStream;
 
 public class FlammiaM_Project7_Java{
-	public static void main(String[] args){
+	public static void main(String[] args) throws FileNotFoundException{
 		//makes sure arguments are present
 		if(args.length != 3){
 			System.out.println("To run please include these arguments: inputData MSTFile debugFile");
@@ -26,7 +26,7 @@ public class FlammiaM_Project7_Java{
 		mst.numSets = mst.numNodes;
 		mst.inWhichSet = new int[mst.numNodes + 1];
 		for(int i=0;i<=mst.numNodes;i++){
-			mst.inWhichSet[i] = -1;
+			mst.inWhichSet[i] = i;
 		}
 		mst.listHeadEdge = new edgeNode();
 		mst.listHeadMST = new edgeNode();
@@ -45,17 +45,24 @@ public class FlammiaM_Project7_Java{
 		//step 10 loop
 		while(mst.numSets > 1){
 			//step 5
-			do{
-				edgeNode nextEdge = mst.removeEdge(mst.listHeadEdge);
-			}while(mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[nextEdge.Nj]);
+			edgeNode nextEdge = mst.removeEdge(mst.listHeadEdge);
+			while(mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[nextEdge.Nj]){
+				nextEdge = mst.removeEdge(mst.listHeadEdge);
+			}
+			
 			mst.insert(nextEdge, mst.listHeadMST);
 			mst.totalMSTCost += nextEdge.cost;
 			mst.merge2Sets(nextEdge.Ni, nextEdge.Nj);
 			mst.numSets--;
+			
+			mst.printAry(debug);
+			System.out.println("Printing Edge List");
 			mst.printList(debug,mst.listHeadEdge);
+			System.out.println("Printing MST List");
 			mst.printList(debug,mst.listHeadMST);
 		}
 		mst.printList(output,mst.listHeadMST);
+		System.out.println("Total MST Cost is:"+mst.totalMSTCost);
 	}
 }
 
@@ -125,23 +132,30 @@ class kruskalMST{
 		temp.next = null;
 		return temp;
 	}
-	void merge2Sets(edgeNode node1, edgeNode node2){
-		if(node1.cost < node2.cost){
-			inWhichSet[node2.Ni] = node1.Ni;
+	void merge2Sets(int node1, int node2){
+		if(node1 < node2){
+			inWhichSet[node2] = node1;
 		}
 		else{
-			inWhichSet[node1.Ni] = node2.Ni;
+			inWhichSet[node1] = node2;
 		}
 	}
 	void printAry(PrintStream fileOut){
 		System.setOut(fileOut);
 		System.out.println("Printing inWhichSet array....");
 		for(int i=1;i<=this.numNodes;i++){
-			System.out.print(this.inWhichSet[i])
+			System.out.print(this.inWhichSet[i] + " ");
 		}
+		System.out.println();
 	}
 	void printList(PrintStream fileOut, edgeNode head){
 		System.setOut(fileOut);
-		
+		edgeNode temp = head;
+		while(temp.next != null){
+			temp.printNode();
+			temp = temp.next;
+		}
+		temp.printNode();
+		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 }
