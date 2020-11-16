@@ -28,9 +28,6 @@ public class FlammiaM_Project7_Java{
 		for(int i=0;i<=mst.numNodes;i++){
 			mst.inWhichSet[i] = i;
 		}
-		mst.listHeadEdge = new edgeNode();
-		mst.listHeadMST = new edgeNode();
-		mst.totalMSTCost = 0;
 		mst.printAry(debug);
 		//step 4 loop
 		while(scan.hasNextInt()){
@@ -40,18 +37,15 @@ public class FlammiaM_Project7_Java{
 			int cost = scan.nextInt();
 			edgeNode node  = new edgeNode(Ni,Nj,cost);
 			mst.insert(node, mst.listHeadEdge);
-			System.out.println("Printing list after first insert...");
+			System.out.println("Printing list from init creation...");
 			mst.printList(debug,mst.listHeadEdge);
 		}
 		//step 10 loop
-		while(mst.numSets > 0){
+		while(mst.numSets > 1){
 			//step 5
 			edgeNode nextEdge = mst.removeEdge(mst.listHeadEdge);
-			//step 6 loop, will loop to check parent of Ni and Nj as well
-			while(mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[nextEdge.Nj] || 
-			      mst.inWhichSet[nextEdge.Ni] == mst.inWhichSet[mst.inWhichSet[nextEdge.Nj]] ||
-				  mst.inWhichSet[mst.inWhichSet[nextEdge.Ni]] == mst.inWhichSet[nextEdge.Nj]){
-				mst.numSets--;
+			//step 6 loop
+			while(mst.check(nextEdge.Ni,nextEdge.Nj)){
 				System.out.println("Ignoring node");
 				nextEdge.printNode();
 				//step 5 repeat
@@ -119,11 +113,25 @@ class kruskalMST{
 		this.numNodes = 0;
 		this.numSets = 0;
 		this.totalMSTCost = 0;
-		listHeadEdge = null;
-		listHeadMST = null;
+		listHeadEdge = new edgeNode();
+		listHeadMST = new edgeNode();
 	}
 	
 	//methods
+	boolean check(int node1, int node2){
+		if(this.inWhichSet[node1] == this.inWhichSet[node2]){
+			return true;
+		}
+		else if(this.inWhichSet[node1] != node1){
+			return check(this.inWhichSet[node1], node2);
+		}
+		else if(this.inWhichSet[node2] != node2){
+			return check(node1, this.inWhichSet[node2]);
+		}
+		else{
+			return false;
+		}
+	}
 	void insert(edgeNode node, edgeNode head){
 		edgeNode temp = head;
 		while(temp.next != null){
@@ -152,10 +160,10 @@ class kruskalMST{
 	}
 	void merge2Sets(int node1, int node2){
 		if(node1 < node2){
-			inWhichSet[node2] = node1;
+			this.inWhichSet[node2] = node1;
 		}
 		else{
-			inWhichSet[node1] = node2;
+			this.inWhichSet[node1] = node2;
 		}
 	}
 	void printAry(PrintStream fileOut){
